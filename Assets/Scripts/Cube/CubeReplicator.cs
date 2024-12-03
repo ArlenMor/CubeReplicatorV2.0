@@ -15,20 +15,16 @@ public class CubeReplicator : MonoBehaviour
     public List<Rigidbody> Replicate(Cube cube)
     {
         List<Rigidbody> rigidbodyReplicatedCubes = new List<Rigidbody>();
+        int numberOfCubes = UnityEngine.Random.Range(_minNumbersSmallCube, _maxNumbersSmallCube + 1);
 
-        if (cube.MultiplyChance >= _random.NextDouble())
+        for (int i = 0; i < numberOfCubes; i++)
         {
-            int numberOfCubes = UnityEngine.Random.Range(_minNumbersSmallCube, _maxNumbersSmallCube + 1);
+            Cube smallCube = InstantiateReplicatedCube(cube);
 
-            for (int i = 0; i < numberOfCubes; i++)
-            {
-                Cube smallCube = InstantiateReplicatedCube(cube);
-
-                if (smallCube.Rigidbody)
-                    rigidbodyReplicatedCubes.Add(smallCube.Rigidbody);
-            }
+            if (smallCube.Rigidbody)
+                rigidbodyReplicatedCubes.Add(smallCube.Rigidbody);
         }
-
+        
         Destroy(cube.gameObject);
 
         return rigidbodyReplicatedCubes;
@@ -44,7 +40,7 @@ public class CubeReplicator : MonoBehaviour
 
         Cube replicatedCube = Instantiate(_cubePrefab, spawnPoint, Quaternion.identity);
         replicatedCube.transform.localScale = newScale;
-        replicatedCube.Init(cube.MultiplyChance, cube.Replicator, cube.Explosioner);
+        replicatedCube.Init(cube);
 
         return replicatedCube;
     }

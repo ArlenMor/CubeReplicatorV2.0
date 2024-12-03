@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,12 +6,14 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer))]
 public class Cube : MonoBehaviour
 {
-    private float _reduceMultiplyChanceCoef = 2f;
-
     private ColorChanger _colorChanger = new ColorChanger();
     private MeshRenderer _meshRenderer;
     private List<Rigidbody> _rigidbodyReplicatedCubes = new List<Rigidbody>();
+    private bool _willExplosive = false;
+    private float _reduceMultiplyChanceCoef = 2f;
 
+    public float ExplosionForce { get; private set; }
+    public float ExplosionRadius { get; private set; }
     public CubeReplicator Replicator { get; private set; }
     public Explosioner Explosioner { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
@@ -19,6 +22,9 @@ public class Cube : MonoBehaviour
     private void Awake()
     {
         MultiplyChance = 1f;
+
+        ExplosionForce = 250f;
+        ExplosionRadius = 2f;
 
         Rigidbody = GetComponent<Rigidbody>();
         _meshRenderer = GetComponent<MeshRenderer>();
@@ -34,22 +40,32 @@ public class Cube : MonoBehaviour
             Explosioner = FindFirstObjectByType<Explosioner>();
     }
 
-    public void Init(float multiplyChanceBigCube, CubeReplicator replicator, Explosioner explosioner)
+    public void Init(Cube cube)
     {
-        MultiplyChance = multiplyChanceBigCube / _reduceMultiplyChanceCoef;
+        MultiplyChance = cube.MultiplyChance / _reduceMultiplyChanceCoef;
+        ExplosionForce = cube.ExplosionForce * 2f;
+        ExplosionRadius = cube.ExplosionRadius * 1.2f;
 
-        Explosioner = explosioner;
-        Replicator = replicator;
+
+        Explosioner = cube.Explosioner;
+        Replicator = cube.Replicator;
     }
 
     public void Replicate()
     {
-        _rigidbodyReplicatedCubes = Replicator.Replicate(this);
+        System.Random _random = new System.Random();
+
+        if (MultiplyChance >= _random.NextDouble())
+            _rigidbodyReplicatedCubes = Replicator.Replicate(this);
+        else
+            _willExplosive = true;
     }
 
     public void Explode()
     {
-        if(_rigidbodyReplicatedCubes.Count != 0)
-            Explosioner.Explode(transform, _rigidbodyReplicatedCubes);
+        if (_willExplosive)
+            Explosioner.Explode(this);
+        else if(_rigidbodyReplicatedCubes.Count != 0)
+            Explosioner.Explode(transform.position, _rigidbodyReplicatedCubes);
     }
 }
