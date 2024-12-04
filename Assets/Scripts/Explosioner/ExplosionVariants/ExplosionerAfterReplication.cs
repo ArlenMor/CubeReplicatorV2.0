@@ -9,19 +9,10 @@ public class ExplosionerAfterReplication : MonoBehaviour, IExplodable
     private Vector3 _centerExplosion;
     private List<Rigidbody> _repulsiveCubes = new List<Rigidbody>();
 
-    public bool ExplodeThisFrame { get; private set; }
-
-    private void Awake()
-    {
-        ExplodeThisFrame = false;
-    }
-
     public void Init(Vector3 centerExplosion, List<Rigidbody> repulsiveCubes)
     {
         _centerExplosion = centerExplosion;
         _repulsiveCubes = repulsiveCubes;
-
-        ExplodeThisFrame = true;
     }
 
     public void Explode()
@@ -34,7 +25,5 @@ public class ExplosionerAfterReplication : MonoBehaviour, IExplodable
                     _repulsiveCubes[i].AddExplosionForce(_explosionForce, _centerExplosion, _radius);
             }
         }
-
-        ExplodeThisFrame = false;
     }
 }

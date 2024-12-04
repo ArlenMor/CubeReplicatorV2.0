@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +10,8 @@ public class Cube : MonoBehaviour
     private List<Rigidbody> _rigidbodyReplicatedCubes = new List<Rigidbody>();
     private bool _willExplosive = false;
     private float _reduceMultiplyChanceCoef = 2f;
+    private float _increaseExplosiveForce = 1.5f;
+    private float _increaseExplosiveRadius = 1.2f;
 
     public float ExplosionForce { get; private set; }
     public float ExplosionRadius { get; private set; }
@@ -34,18 +35,27 @@ public class Cube : MonoBehaviour
     private void Start()
     {
         if (Replicator == null)
+        {
             Replicator = FindFirstObjectByType<CubeReplicator>();
 
+            if (Replicator == null)
+                Debug.LogError($"Объект {this.name} не нашёл важный компонент {typeof(CubeReplicator)}!");
+        }
+
         if (Explosioner == null)
+        {
             Explosioner = FindFirstObjectByType<Explosioner>();
+
+            if (Explosioner == null)
+                Debug.LogError($"Объект {this.name} не нашёл важный компонент {typeof(Explosioner)}!");
+        }
     }
 
     public void Init(Cube cube)
     {
         MultiplyChance = cube.MultiplyChance / _reduceMultiplyChanceCoef;
-        ExplosionForce = cube.ExplosionForce * 2f;
-        ExplosionRadius = cube.ExplosionRadius * 1.2f;
-
+        ExplosionForce = cube.ExplosionForce * _increaseExplosiveForce;
+        ExplosionRadius = cube.ExplosionRadius * _increaseExplosiveRadius;
 
         Explosioner = cube.Explosioner;
         Replicator = cube.Replicator;

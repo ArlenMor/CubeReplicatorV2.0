@@ -1,29 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplosionerWithoutReplication : IExplodable
+public class ExplosionerWithoutReplication : MonoBehaviour, IExplodable
 {
-    private float _explosionForce;
-    private float _explosionRadius;
-    private Vector3 _explosionCenter;
-    private List<Rigidbody> _repulsiveCubes;
-    private LayerMask _cubesLayerMask;
+    [SerializeField]private LayerMask _cubeLayerMask;
 
-    public ExplosionerWithoutReplication(Cube cube)
+    private float _explosionRadius;
+    private float _explosionForce;
+    private List<Rigidbody> _repulsiveCubes = new List<Rigidbody>();
+    private Vector3 _explosionCenter;
+
+    public void Init(Cube cube)
     {
-        _cubesLayerMask = 1 << 3;
         _repulsiveCubes = new List<Rigidbody>();
 
         _explosionCenter = cube.transform.position;
         _explosionForce = cube.ExplosionForce;
         _explosionRadius = cube.ExplosionRadius;
 
-        Collider[] cubes = Physics.OverlapSphere(_explosionCenter, _explosionRadius, _cubesLayerMask);
+        Collider[] cubes = Physics.OverlapSphere(_explosionCenter, _explosionRadius, _cubeLayerMask);
 
         foreach (Collider collider in cubes)
             if (collider.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
                 _repulsiveCubes.Add(rigidbody);
-
     }
 
     public void Explode()
